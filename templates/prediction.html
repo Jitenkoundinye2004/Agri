@@ -4,10 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AgriCare Prediction Dashboard</title>
-    <!-- Load Chart.js for graphing -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Link to your generated CSS file -->
-    <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configure Tailwind to use Inter font and custom colors -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'agri-green': '#10B981', // Emerald green for primary actions
+                        'agri-light': '#F9FAFB', // Light gray background
+                        'agri-card': '#FFFFFF', // White card background
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <link href="{{ url_for('static', filename='css/dist.css') }}" rel="stylesheet">
     <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -28,6 +44,9 @@
             background-color: #ECFDF5; /* Green-50 */
             font-weight: 600;
         }
+        .font-sans {
+            font-family: 'Inter', sans-serif;
+        }
     </style>
 </head>
 <body class="bg-agri-light min-h-screen flex flex-col">
@@ -36,24 +55,43 @@
     <header class="bg-white shadow-md p-4 sticky top-0 z-10">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <span class="bg-agri-green text-white font-bold text-xl px-2 py-1 rounded-full">Ag</span>
-                <span class="text-xl font-bold text-gray-800">AgriCare</span>
-                <span class="text-sm text-gray-500 hidden md:block">Sustainable Farming • Smart Insights</span>
+                <a href="{{ url_for('prediction') }}" class="flex items-center space-x-3">
+                    <span class="bg-agri-green text-white font-bold text-xl px-2 py-1 rounded-full">Ag</span>
+                    <span class="text-xl font-bold text-gray-800" data-i18n="brand.name">AgriCare</span>
+                    <span class="text-sm text-gray-500 hidden md:block" data-i18n="brand.tagline">Sustainable Farming • Smart Insights</span>
+                </a>
             </div>
             <div class="flex items-center space-x-4">
+                <select id="language-select" class="text-gray-600 hover:text-agri-green bg-transparent border-none focus:outline-none p-2 rounded-md">
+                    <option value="en">English</option>
+                    <option value="mr">मराठी</option>
+                    <option value="hi">हिंदी</option>
+                </select>
+                
+                {# Check if the user is logged in. This assumes you pass a 'user' object from Flask. #}
                 {% if user %}
-                <!-- If user is logged in, show profile and name -->
-                <div class="flex items-center space-x-3">
-                    <span class="font-medium text-gray-700">Welcome, {{ user.fullname }}</span>
-                    <img class="w-10 h-10 rounded-full object-cover border-2 border-agri-green" src="{{ url_for('uploaded_file', filename=user.profile_photo_path) }}" alt="Profile Photo">
-                    <a href="{{ url_for('logout') }}" class="text-sm text-gray-600 hover:text-agri-green underline">Logout</a>
+                <!-- User Profile Display -->
+                <div class="flex items-center">
+                    <span class="text-gray-700 font-medium hidden sm:inline-block">Welcome, {{ user.fullname }}</span>
+                    <div class="relative ml-3">
+                        <button id="profile-button" class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border-2 border-transparent hover:border-agri-green transition">
+                            {% if user.profile_photo_path %}
+                                <img src="{{ url_for('uploaded_file', filename=user.profile_photo_path) }}" alt="Profile Photo" class="w-full h-full object-cover">
+                            {% else %}
+                                <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                            {% endif %}
+                        </button>
+                        <!-- Profile Dropdown -->
+                        <div id="profile-dropdown" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-20">
+                            <div class="px-4 py-2 text-sm text-gray-700">Signed in as<br><strong class="font-medium break-words">{{ user.email }}</strong></div>
+                            <div class="border-t border-gray-100"></div>
+                            <a href="{{ url_for('logout') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+                        </div>
+                    </div>
                 </div>
                 {% else %}
-                <!-- If user is not logged in, show default buttons -->
-                <button class="text-gray-600 hover:text-agri-green">मराठी</button>
-                <a href="{{ url_for('index') }}" class="bg-agri-green text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:bg-emerald-600 transition">
-                    Login
-                </a>
+                <!-- Get Started Button for guests -->
+                <a href="{{ url_for('index') }}#login-section" class="bg-agri-green text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:bg-emerald-600 transition" data-i18n="cta.getStarted">Get Started</a>
                 {% endif %}
             </div>
         </div>
@@ -64,7 +102,7 @@
 
         <!-- Left Sidebar / Slide Bar (Navigation) -->
         <aside id="sidebar" class="w-full lg:w-72 bg-agri-card rounded-xl shadow-lg p-4 h-full lg:sticky lg:top-20 overflow-y-auto">
-            <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Prediction Tools</h2>
+            <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2" data-i18n="sidebar.title">Prediction Tools</h2>
 
             <nav class="space-y-2">
                 <!-- Predict Weather Link (Active by default) -->
@@ -76,9 +114,9 @@
                 >
                     <div class="flex items-center space-x-3">
                         <svg class="w-6 h-6 text-agri-green" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
-                        <span class="font-medium">Predict Weather</span>
+                        <span class="font-medium" data-i18n="sidebar.weather">Predict Weather</span>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1 pl-9">Short-term forecasts tailored to your field.</p>
+                    <p class="text-xs text-gray-500 mt-1 pl-9" data-i18n="sidebar.weatherDesc">Short-term forecasts tailored to your field.</p>
                 </button>
 
                 <!-- Predict Crop Link -->
@@ -90,9 +128,9 @@
                 >
                     <div class="flex items-center space-x-3">
                         <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l2-2l2 2v13"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21v-2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 10v4h4v-4h-4z"></path></svg>
-                        <span class="font-medium">Predict Crop</span>
+                        <span class="font-medium" data-i18n="sidebar.crop">Predict Crop</span>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1 pl-9">AI suggestions for best-fit crops based on soil and history.</p>
+                    <p class="text-xs text-gray-500 mt-1 pl-9" data-i18n="sidebar.cropDesc">AI suggestions for best-fit crops based on soil and history.</p>
                 </button>
 
                 <!-- Predict Seed Rate Link -->
@@ -104,9 +142,9 @@
                 >
                     <div class="flex items-center space-x-3">
                         <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.657 0 3 .895 3 2s-1.343 2-3 2-3 .895-3 2 1.343 2 3 2m-3 0h6"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span class="font-medium">Predict Seed Rate</span>
+                        <span class="font-medium" data-i18n="sidebar.seed">Predict Seed Rate</span>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1 pl-9">Accurate estimates to optimize input costs.</p>
+                    <p class="text-xs text-gray-500 mt-1 pl-9" data-i18n="sidebar.seedDesc">Accurate estimates to optimize input costs.</p>
                 </button>
             </nav>
         </aside>
@@ -117,88 +155,68 @@
 
                 <!-- 1. Predict Weather Content -->
                 <div id="weather-content" class="content-card bg-agri-card p-6 rounded-xl shadow-lg border border-gray-100">
-                    <h1 class="text-3xl font-bold text-agri-green mb-4">Live Weather Forecast</h1>
-                    <p class="text-gray-600 mb-6">Get 7-day hyper-local weather predictions for your farm location, including temperature, humidity, and rainfall probability.</p>
+                    <h1 class="text-3xl font-bold text-agri-green mb-4" data-i18n="weather.title">Live Weather Forecast</h1>
+                    <p class="text-gray-600 mb-6" data-i18n="weather.desc">Get 7-day hyper-local weather predictions for your farm location, including temperature, humidity, and rainfall probability.</p>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         <div>
-                            <label for="location" class="block text-sm font-medium text-gray-700">Select Location / Coordinates</label>
-                            <input type="text" id="location" value="Manwath, Parbhani, Maharashtra, India" placeholder="e.g., Maharashtra, India" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
+                            <label for="location" class="block text-sm font-medium text-gray-700" data-i18n="weather.locationLabel">Select Location / Coordinates</label>
+                            <input type="text" id="location" placeholder="e.g., Maharashtra, India" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
                         </div>
-                        <div class="flex items-end">
-                            <button id="get-forecast-btn" class="bg-agri-green text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:bg-emerald-600 transition w-full">Get Forecast</button>
-                        </div>
-                    </div>
-
-                    <!-- Main Forecast Display Area -->
-                    <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <!-- Left side: Bar Graph -->
-                        <div class="lg:col-span-2">
-                            <canvas id="weatherChart"></canvas>
-                        </div>
-
-                        <!-- Right side: Current Conditions & Tips -->
-                        <div id="current-conditions-panel" class="bg-gray-50 p-4 rounded-lg border hidden">
-                            <h3 class="font-bold text-lg mb-2">Current Conditions</h3>
-                            <p id="current-location" class="text-sm text-gray-500 mb-4"></p>
-                            <div class="space-y-3 text-gray-700">
-                                <p><strong>Temperature:</strong> <span id="current-temp"></span></p>
-                                <p><strong>Humidity:</strong> <span id="current-humidity"></span></p>
-                                <p><strong>Precipitation:</strong> <span id="current-precip"></span></p>
-                                <p><strong>Wind:</strong> <span id="current-wind"></span></p>
-                            </div>
-                            <hr class="my-4">
-                            <h3 class="font-bold text-lg mb-2">Weather Tips</h3>
-                            <ul id="weather-tips-list" class="list-disc list-inside space-y-2 text-sm text-gray-600"></ul>
+                        <div>
+                            <label for="date" class="block text-sm font-medium text-gray-700" data-i18n="weather.dateLabel">Forecast Date</label>
+                            <input type="date" id="date" value="2025-11-13" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
                         </div>
                     </div>
 
-                    <!-- Hourly Forecast Display Area -->
-                    <div class="mt-8">
-                        <h3 class="font-bold text-xl mb-2 text-center">Today (Hourly)</h3>
-                        <canvas id="hourlyWeatherChart"></canvas>
+                    <button class="bg-agri-green text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:bg-emerald-600 transition" data-i18n="weather.button">Get Forecast</button>
+
+                    <div class="mt-8 p-4 bg-blue-50 border-l-4 border-blue-400 rounded-md">
+                        <p class="font-semibold text-blue-800" data-i18n="weather.resultTitle">Prediction Result:</p>
+                        <p class="text-blue-700 text-sm">Today's Max Temp: 32°C, Min Temp: 21°C. Rainfall Probability: 10%. Wind Speed: 5km/h N.</p>
                     </div>
                 </div>
+
                 <!-- 2. Predict Crop Content (Initially Hidden) -->
                 <div id="crop-content" class="content-card bg-agri-card p-6 rounded-xl shadow-lg border border-gray-100 hidden">
-                    <h1 class="text-3xl font-bold text-yellow-700 mb-4">Optimal Crop Recommendation</h1>
-                    <p class="text-gray-600 mb-6">Enter your soil data and historical parameters to get a personalized crop suggestion that maximizes yield.</p>
+                    <h1 class="text-3xl font-bold text-yellow-700 mb-4" data-i18n="crop.title">Optimal Crop Recommendation</h1>
+                    <p class="text-gray-600 mb-6" data-i18n="crop.desc">Enter your soil data and historical parameters to get a personalized crop suggestion that maximizes yield.</p>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                         <div>
-                            <label for="nitrogen" class="block text-sm font-medium text-gray-700">Nitrogen (N) level (ppm)</label>
+                            <label for="nitrogen" class="block text-sm font-medium text-gray-700" data-i18n="crop.nLabel">Nitrogen (N) level (ppm)</label>
                             <input type="number" id="nitrogen" placeholder="e.g., 90" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
                         </div>
                         <div>
-                            <label for="phos" class="block text-sm font-medium text-gray-700">Phosphorus (P) level (ppm)</label>
+                            <label for="phos" class="block text-sm font-medium text-gray-700" data-i18n="crop.pLabel">Phosphorus (P) level (ppm)</label>
                             <input type="number" id="phos" placeholder="e.g., 42" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
                         </div>
                         <div>
-                            <label for="soil_ph" class="block text-sm font-medium text-gray-700">Soil pH</label>
+                            <label for="soil_ph" class="block text-sm font-medium text-gray-700" data-i18n="crop.phLabel">Soil pH</label>
                             <input type="number" id="soil_ph" placeholder="e.g., 6.5" step="0.1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
                         </div>
                     </div>
 
-                    <button class="bg-yellow-600 text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:bg-yellow-700 transition">Analyze & Recommend</button>
+                    <button class="bg-yellow-600 text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:bg-yellow-700 transition" data-i18n="crop.button">Analyze & Recommend</button>
 
                     <div class="mt-8 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-md">
-                        <p class="font-semibold text-yellow-800">Recommendation:</p>
+                        <p class="font-semibold text-yellow-800" data-i18n="crop.resultTitle">Recommendation:</p>
                         <p class="text-yellow-700 text-sm">Based on the high NPK ratio and slightly acidic pH, the AI strongly recommends growing **Cotton** or **Maize** this season.</p>
                     </div>
                 </div>
 
                 <!-- 3. Predict Seed Rate Content (Initially Hidden) -->
                 <div id="seed-content" class="content-card bg-agri-card p-6 rounded-xl shadow-lg border border-gray-100 hidden">
-                    <h1 class="text-3xl font-bold text-indigo-700 mb-4">Dynamic Seed Rate Calculator</h1>
-                    <p class="text-gray-600 mb-6">Calculate the precise seed quantity needed based on field size, crop type, and desired plant density to reduce waste.</p>
+                    <h1 class="text-3xl font-bold text-indigo-700 mb-4" data-i18n="seed.title">Dynamic Seed Rate Calculator</h1>
+                    <p class="text-gray-600 mb-6" data-i18n="seed.desc">Calculate the precise seed quantity needed based on field size, crop type, and desired plant density to reduce waste.</p>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         <div>
-                            <label for="area" class="block text-sm font-medium text-gray-700">Field Area (Acres)</label>
+                            <label for="area" class="block text-sm font-medium text-gray-700" data-i18n="seed.areaLabel">Field Area (Acres)</label>
                             <input type="number" id="area" placeholder="e.g., 5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
                         </div>
                         <div>
-                            <label for="crop_type" class="block text-sm font-medium text-gray-700">Crop Type</label>
+                            <label for="crop_type" class="block text-sm font-medium text-gray-700" data-i18n="seed.cropTypeLabel">Crop Type</label>
                             <select id="crop_type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
                                 <option>Wheat</option>
                                 <option>Rice</option>
@@ -207,19 +225,19 @@
                             </select>
                         </div>
                         <div>
-                            <label for="density" class="block text-sm font-medium text-gray-700">Target Density (plants/sq. meter)</label>
+                            <label for="density" class="block text-sm font-medium text-gray-700" data-i18n="seed.densityLabel">Target Density (plants/sq. meter)</label>
                             <input type="number" id="density" placeholder="e.g., 25" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
                         </div>
                         <div>
-                            <label for="germination" class="block text-sm font-medium text-gray-700">Seed Germination Rate (%)</label>
+                            <label for="germination" class="block text-sm font-medium text-gray-700" data-i18n="seed.germinationLabel">Seed Germination Rate (%)</label>
                             <input type="number" id="germination" placeholder="e.g., 90" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
                         </div>
                     </div>
 
-                    <button class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:bg-indigo-700 transition">Calculate Seed Rate</button>
+                    <button class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:bg-indigo-700 transition" data-i18n="seed.button">Calculate Seed Rate</button>
 
                     <div class="mt-8 p-4 bg-indigo-50 border-l-4 border-indigo-400 rounded-md">
-                        <p class="font-semibold text-indigo-800">Required Seed Rate:</p>
+                        <p class="font-semibold text-indigo-800" data-i18n="seed.resultTitle">Required Seed Rate:</p>
                         <p class="text-indigo-700 text-sm">For 5 acres of Wheat with 90% germination, you need approximately **120 kg** of seeds.</p>
                     </div>
                 </div>
@@ -232,13 +250,11 @@
     <!-- Footer -->
     <footer class="mt-8 p-4 bg-white border-t">
         <div class="max-w-7xl mx-auto text-center text-sm text-gray-500">
-            &copy; 2025 AgriCare • Built for farmers
+            &copy; <span id="year"></span> <span data-i18n="footer.brand">AgriCare</span> • <span data-i18n="footer.copy">Built for farmers</span>
         </div>
     </footer>
 
     <script>
-        let weatherChartInstance = null; // To hold the chart object
-        let hourlyChartInstance = null; // To hold the hourly chart object
         /**
          * Function to switch the visible content based on the clicked navigation link.
          * @param {HTMLElement} clickedElement - The button element that was clicked.
@@ -269,354 +285,146 @@
             clickedElement.classList.add('active-link');
         }
 
-        /**
-         * Fetches weather data and draws the chart.
-         */
-        async function fetchAndDrawWeatherChart() {
-            const forecastBtn = document.getElementById('get-forecast-btn');
-            forecastBtn.textContent = 'Loading...';
-            forecastBtn.disabled = true;
+        // --- TRANSLATION LOGIC ---
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('year').innerText = new Date().getFullYear();
 
-            try {
-                const locationInput = document.getElementById('location');
-                const location = locationInput.value; // Use the input's value, which now has a default.
+            const nodes = Array.from(document.querySelectorAll('[data-i18n]'));
 
-                // Send the location as a query parameter to the backend
-                const response = await fetch(`/weather-forecast?location=${encodeURIComponent(location)}`);
-                if (!response.ok) {
-                    const errorData = await response.json(); // Get the specific error message from the server
-                    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-                }
-                const data = await response.json();
+            const ORIGINAL_TEXTS = nodes.reduce((acc, el) => {
+                acc[el.getAttribute('data-i18n')] = el.innerText.trim();
+                return acc;
+            }, {});
 
-                // 1. Populate Current Conditions Panel
-                document.getElementById('current-location').textContent = data.location;
-                document.getElementById('current-temp').textContent = `${data.current.temp} °C`;
-                document.getElementById('current-humidity').textContent = `${data.current.humidity} %`;
-                document.getElementById('current-precip').textContent = `${data.current.precipitation} %`;
-                document.getElementById('current-wind').textContent = `${data.current.wind} km/h`;
-                
-                const tipsList = document.getElementById('weather-tips-list');
-                tipsList.innerHTML = ''; // Clear old tips
-                data.tips.forEach(tip => {
-                    const li = document.createElement('li');
-                    li.textContent = tip;
-                    tipsList.appendChild(li);
-                });
-                document.getElementById('current-conditions-panel').classList.remove('hidden');
+            const FALLBACK_MR = {
+                "brand.name": "एग्रीकेअर",
+                "brand.tagline": "शाश्वत शेती • स्मार्ट अंतर्दृष्टी",
+                "cta.getStarted": "सुरुवात करा",
+                "sidebar.title": "अंदाज साधने",
+                "sidebar.weather": "हवामानाचा अंदाज",
+                "sidebar.weatherDesc": "तुमच्या शेतासाठी अल्प-मुदतीचा अंदाज.",
+                "sidebar.crop": "पिकाचा अंदाज",
+                "sidebar.cropDesc": "माती आणि इतिहासावर आधारित AI सूचना.",
+                "sidebar.seed": "बियाणे दराचा अंदाज",
+                "sidebar.seedDesc": "खर्च कमी करण्यासाठी अचूक अंदाज.",
+                "weather.title": "थेट हवामान अंदाज",
+                "weather.desc": "तुमच्या शेतासाठी ७-दिवसांचा स्थानिक हवामान अंदाज मिळवा.",
+                "weather.locationLabel": "स्थान / निर्देशांक निवडा",
+                "weather.dateLabel": "अंदाजाची तारीख",
+                "weather.button": "अंदाज मिळवा",
+                "weather.resultTitle": "अंदाजाचा निकाल:",
+                "crop.title": "उत्तम पीक शिफारस",
+                "crop.desc": "उत्पन्न वाढवण्यासाठी तुमची माती माहिती आणि ऐतिहासिक पॅरामीटर्स प्रविष्ट करा.",
+                "crop.nLabel": "नायट्रोजन (N) पातळी (ppm)",
+                "crop.pLabel": "फॉस्फरस (P) पातळी (ppm)",
+                "crop.phLabel": "मातीचा pH",
+                "crop.button": "विश्लेषण आणि शिफारस करा",
+                "crop.resultTitle": "शिफारस:",
+                "seed.title": "डायनॅमिक बियाणे दर कॅल्क्युलेटर",
+                "seed.desc": "शेताचा आकार, पिकाचा प्रकार आणि इच्छित घनतेवर आधारित अचूक बियाणे प्रमाण मोजा.",
+                "seed.areaLabel": "शेताचे क्षेत्र (एकर)",
+                "seed.cropTypeLabel": "पिकाचा प्रकार",
+                "seed.densityLabel": "लक्ष्य घनता (झाडे/चौ. मीटर)",
+                "seed.germinationLabel": "बियाणे उगवण दर (%)",
+                "seed.button": "बियाणे दराची गणना करा",
+                "seed.resultTitle": "आवश्यक बियाणे दर:",
+                "footer.brand": "एग्रीकेअर",
+                "footer.copy": "शेतकऱ्यांसाठी बनवलेले"
+            };
 
-                // 2. Draw the 7-Day Bar Chart
-                const dailyLabels = data.daily.map(d => d.day_name);
-                const maxTemps = data.daily.map(d => d.max_temp);
-                const minTemps = data.daily.map(d => d.min_temp);
-                const ctx = document.getElementById('weatherChart').getContext('2d');
+            const FALLBACK_HI = {
+                "brand.name": "एग्रीकेयर",
+                "brand.tagline": "सतत खेती • स्मार्ट अंतर्दृष्टि",
+                "cta.getStarted": "शुरू हो जाओ",
+                "sidebar.title": "भविष्यवाणी उपकरण",
+                "sidebar.weather": "मौसम का पूर्वानुमान",
+                "sidebar.weatherDesc": "आपके खेत के लिए अल्पकालिक पूर्वानुमान।",
+                "sidebar.crop": "फसल की भविष्यवाणी",
+                "sidebar.cropDesc": "मिट्टी और इतिहास पर आधारित एआई सुझाव।",
+                "sidebar.seed": "बीज दर की भविष्यवाणी",
+                "sidebar.seedDesc": "लागत का अनुकूलन करने के लिए सटीक अनुमान।",
+                "weather.title": "लाइव मौसम पूर्वानुमान",
+                "weather.desc": "अपने खेत के स्थान के लिए 7-दिवसीय हाइपर-लोकल मौसम की भविष्यवाणी प्राप्त करें।",
+                "weather.locationLabel": "स्थान / निर्देशांक चुनें",
+                "weather.dateLabel": "पूर्वानुमान तिथि",
+                "weather.button": "पूर्वानुमान प्राप्त करें",
+                "weather.resultTitle": "भविष्यवाणी का परिणाम:",
+                "crop.title": "इष्टतम फसल सिफारिश",
+                "crop.desc": "उपज को अधिकतम करने के लिए अपनी मिट्टी का डेटा और ऐतिहासिक पैरामीटर दर्ज करें।",
+                "crop.nLabel": "नाइट्रोजन (N) स्तर (ppm)",
+                "crop.pLabel": "फास्फोरस (P) स्तर (ppm)",
+                "crop.phLabel": "मिट्टी का पीएच",
+                "crop.button": "विश्लेषण और सिफारिश करें",
+                "crop.resultTitle": "सिफारिश:",
+                "seed.title": "गतिशील बीज दर कैलकुलेटर",
+                "seed.desc": "अपशिष्ट को कम करने के लिए खेत के आकार, फसल के प्रकार और वांछित पौधे के घनत्व के आधार पर आवश्यक बीज की सटीक मात्रा की गणना करें।",
+                "seed.areaLabel": "खेत का क्षेत्रफल (एकड़)",
+                "seed.cropTypeLabel": "फसल का प्रकार",
+                "seed.densityLabel": "लक्ष्य घनत्व (पौधे/वर्ग मीटर)",
+                "seed.germinationLabel": "बीज अंकुरण दर (%)",
+                "seed.button": "बीज दर की गणना करें",
+                "seed.resultTitle": "आवश्यक बीज दर:",
+                "footer.brand": "एग्रीकेयर",
+                "footer.copy": "किसानों के लिए बनाया गया"
+            };
 
-                if (weatherChartInstance) {
-                    weatherChartInstance.destroy();
-                }
-
-                weatherChartInstance = new Chart(ctx, {
-                    type: 'bar', // Changed to bar chart
-                    data: {
-                        labels: dailyLabels,
-                        datasets: [{
-                            label: 'Max Temperature (°C)',
-                            data: maxTemps,
-                            backgroundColor: 'rgba(239, 68, 68, 0.6)', // Red-500 with opacity
-                            borderColor: '#EF4444',
-                            borderWidth: 1
-                        }, {
-                            label: 'Min Temperature (°C)',
-                            data: minTemps,
-                            backgroundColor: 'rgba(59, 130, 246, 0.6)', // Blue-500 with opacity
-                            borderColor: '#3B82F6',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: '7-Day Temperature Forecast',
-                                font: { size: 16 }
-                            }
-                        }
+            function applyTranslationsMap(map) {
+                nodes.forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (map && map[key]) {
+                        el.innerText = map[key];
                     }
                 });
-
-                // 3. Draw the Hourly Line Chart
-                const hourlyLabels = data.hourly.map(h => h.hour);
-                const hourlyTemps = data.hourly.map(h => h.temp);
-                const hourlyCtx = document.getElementById('hourlyWeatherChart').getContext('2d');
-
-                if (hourlyChartInstance) {
-                    hourlyChartInstance.destroy();
-                }
-
-                hourlyChartInstance = new Chart(hourlyCtx, {
-                    type: 'line',
-                    data: {
-                        labels: hourlyLabels,
-                        datasets: [{
-                            label: 'Temperature (°C)',
-                            data: hourlyTemps,
-                            borderColor: '#10B981', // agri-green
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            fill: true,
-                            tension: 0.4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                display: false // Hide legend for a cleaner look
-                            },
-                            title: {
-                                display: true,
-                                text: 'Hourly Temperature Trend'
-                            }
-                        },
-                        scales: {
-                            x: {
-                                ticks: {
-                                    autoSkip: true,
-                                    maxTicksLimit: 12 // Show fewer labels on x-axis
-                                }
-                            }
-                        }
-                    }
-                });
-
-            } catch (error) {
-                console.error('Failed to fetch weather forecast:', error);
-                alert(`Could not fetch weather: ${error.message}`);
-            } finally {
-                forecastBtn.textContent = 'Get Forecast';
-                forecastBtn.disabled = false;
             }
-        }
 
-        // Attach event listener to the forecast button
-        document.getElementById('get-forecast-btn').addEventListener('click', fetchAndDrawWeatherChart);
-    </script>
-</body>
-</html>
+            const langSelect = document.getElementById('language-select');
 
-                <!-- 3. Predict Seed Rate Content (Initially Hidden) -->
-                <div id="seed-content" class="content-card bg-agri-card p-6 rounded-xl shadow-lg border border-gray-100 hidden">
-                    <h1 class="text-3xl font-bold text-indigo-700 mb-4">Dynamic Seed Rate Calculator</h1>
-                    <p class="text-gray-600 mb-6">Calculate the precise seed quantity needed based on field size, crop type, and desired plant density to reduce waste.</p>
+            function setLanguage(lang) {
+                switch (lang) {
+                    case 'en':
+                        applyTranslationsMap(ORIGINAL_TEXTS);
+                        break;
+                    case 'mr':
+                        applyTranslationsMap(FALLBACK_MR);
+                        break;
+                    case 'hi':
+                        applyTranslationsMap(FALLBACK_HI);
+                        break;
+                    default:
+                        applyTranslationsMap(ORIGINAL_TEXTS);
+                }
+                langSelect.value = lang; // Sync dropdown with current language
+                localStorage.setItem('selectedLanguage', lang); // Save the user's choice
+            }
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <div>
-                            <label for="area" class="block text-sm font-medium text-gray-700">Field Area (Acres)</label>
-                            <input type="number" id="area" placeholder="e.g., 5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
-                        </div>
-                        <div>
-                            <label for="crop_type" class="block text-sm font-medium text-gray-700">Crop Type</label>
-                            <select id="crop_type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
-                                <option>Wheat</option>
-                                <option>Rice</option>
-                                <option>Maize</option>
-                                <option>Cotton</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="density" class="block text-sm font-medium text-gray-700">Target Density (plants/sq. meter)</label>
-                            <input type="number" id="density" placeholder="e.g., 25" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
-                        </div>
-                        <div>
-                            <label for="germination" class="block text-sm font-medium text-gray-700">Seed Germination Rate (%)</label>
-                            <input type="number" id="germination" placeholder="e.g., 90" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
-                        </div>
-                    </div>
-
-                    <button class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:bg-indigo-700 transition">Calculate Seed Rate</button>
-
-                    <div class="mt-8 p-4 bg-indigo-50 border-l-4 border-indigo-400 rounded-md">
-                        <p class="font-semibold text-indigo-800">Required Seed Rate:</p>
-                        <p class="text-indigo-700 text-sm">For 5 acres of Wheat with 90% germination, you need approximately **120 kg** of seeds.</p>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="mt-8 p-4 bg-white border-t">
-        <div class="max-w-7xl mx-auto text-center text-sm text-gray-500">
-            &copy; 2025 AgriCare • Built for farmers
-        </div>
-    </footer>
-
-    <script>
-        let weatherChartInstance = null; // To hold the chart object
-        let hourlyChartInstance = null; // To hold the hourly chart object
-        /**
-         * Function to switch the visible content based on the clicked navigation link.
-         * @param {HTMLElement} clickedElement - The button element that was clicked.
-         */
-        function switchContent(clickedElement) {
-            const targetId = clickedElement.getAttribute('data-target');
-            const contentCards = document.querySelectorAll('.content-card');
-            const navLinks = document.querySelectorAll('.nav-link');
-
-            // 1. Hide all content cards
-            contentCards.forEach(card => {
-                card.classList.add('hidden');
+            langSelect.addEventListener('change', function() {
+                setLanguage(this.value);
             });
 
-            // 2. Remove 'active' styling from all links
-            navLinks.forEach(link => {
-                link.classList.remove('active-link');
-            });
+            // On page load, check for a saved language and apply it
+            const storedLanguage = localStorage.getItem('selectedLanguage') || 'en';
+            setLanguage(storedLanguage);
 
-            // 3. Show the target content card
-            const targetContent = document.getElementById(targetId);
-            if (targetContent) {
-                targetContent.classList.remove('hidden');
-                targetContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
+            // --- PROFILE DROPDOWN LOGIC ---
+            const profileButton = document.getElementById('profile-button');
+            const profileDropdown = document.getElementById('profile-dropdown');
 
-            // 4. Add 'active' styling to the clicked link
-            clickedElement.classList.add('active-link');
-        }
-
-        /**
-         * Fetches weather data and draws the chart.
-         */
-        async function fetchAndDrawWeatherChart() {
-            const forecastBtn = document.getElementById('get-forecast-btn');
-            forecastBtn.textContent = 'Loading...';
-            forecastBtn.disabled = true;
-
-            try {
-                const locationInput = document.getElementById('location');
-                const location = locationInput.value; // Use the input's value, which now has a default.
-
-                // Send the location as a query parameter to the backend
-                const response = await fetch(`/weather-forecast?location=${encodeURIComponent(location)}`);
-                if (!response.ok) {
-                    const errorData = await response.json(); // Get the specific error message from the server
-                    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-                }
-                const data = await response.json();
-
-                // 1. Populate Current Conditions Panel
-                document.getElementById('current-location').textContent = data.location;
-                document.getElementById('current-temp').textContent = `${data.current.temp} °C`;
-                document.getElementById('current-humidity').textContent = `${data.current.humidity} %`;
-                document.getElementById('current-precip').textContent = `${data.current.precipitation} %`;
-                document.getElementById('current-wind').textContent = `${data.current.wind} km/h`;
-                
-                const tipsList = document.getElementById('weather-tips-list');
-                tipsList.innerHTML = ''; // Clear old tips
-                data.tips.forEach(tip => {
-                    const li = document.createElement('li');
-                    li.textContent = tip;
-                    tipsList.appendChild(li);
+            if (profileButton) {
+                profileButton.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent the window click from firing immediately
+                    profileDropdown.classList.toggle('hidden');
                 });
-                document.getElementById('current-conditions-panel').classList.remove('hidden');
 
-                // 2. Draw the 7-Day Bar Chart
-                const dailyLabels = data.daily.map(d => d.day_name);
-                const maxTemps = data.daily.map(d => d.max_temp);
-                const minTemps = data.daily.map(d => d.min_temp);
-                const ctx = document.getElementById('weatherChart').getContext('2d');
-
-                if (weatherChartInstance) {
-                    weatherChartInstance.destroy();
-                }
-
-                weatherChartInstance = new Chart(ctx, {
-                    type: 'bar', // Changed to bar chart
-                    data: {
-                        labels: dailyLabels,
-                        datasets: [{
-                            label: 'Max Temperature (°C)',
-                            data: maxTemps,
-                            backgroundColor: 'rgba(239, 68, 68, 0.6)', // Red-500 with opacity
-                            borderColor: '#EF4444',
-                            borderWidth: 1
-                        }, {
-                            label: 'Min Temperature (°C)',
-                            data: minTemps,
-                            backgroundColor: 'rgba(59, 130, 246, 0.6)', // Blue-500 with opacity
-                            borderColor: '#3B82F6',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: '7-Day Temperature Forecast',
-                                font: { size: 16 }
-                            }
-                        }
+                window.addEventListener('click', (event) => {
+                    if (!profileDropdown.classList.contains('hidden') && !profileButton.contains(event.target)) {
+                        profileDropdown.classList.add('hidden');
                     }
                 });
-
-                // 3. Draw the Hourly Line Chart
-                const hourlyLabels = data.hourly.map(h => h.hour);
-                const hourlyTemps = data.hourly.map(h => h.temp);
-                const hourlyCtx = document.getElementById('hourlyWeatherChart').getContext('2d');
-
-                if (hourlyChartInstance) {
-                    hourlyChartInstance.destroy();
-                }
-
-                hourlyChartInstance = new Chart(hourlyCtx, {
-                    type: 'line',
-                    data: {
-                        labels: hourlyLabels,
-                        datasets: [{
-                            label: 'Temperature (°C)',
-                            data: hourlyTemps,
-                            borderColor: '#10B981', // agri-green
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            fill: true,
-                            tension: 0.4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                display: false // Hide legend for a cleaner look
-                            },
-                            title: {
-                                display: true,
-                                text: 'Hourly Temperature Trend'
-                            }
-                        },
-                        scales: {
-                            x: {
-                                ticks: {
-                                    autoSkip: true,
-                                    maxTicksLimit: 12 // Show fewer labels on x-axis
-                                }
-                            }
-                        }
-                    }
-                });
-
-            } catch (error) {
-                console.error('Failed to fetch weather forecast:', error);
-                alert(`Could not fetch weather: ${error.message}`);
-            } finally {
-                forecastBtn.textContent = 'Get Forecast';
-                forecastBtn.disabled = false;
             }
-        }
+        });
 
-        // Attach event listener to the forecast button
-        document.getElementById('get-forecast-btn').addEventListener('click', fetchAndDrawWeatherChart);
+
+
     </script>
 </body>
 </html>
