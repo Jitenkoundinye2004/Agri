@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Agriculture Dashboard — AgriCare</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+            color: #073b2a
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none
+        }
+
+        body {
+            background: linear-gradient(180deg, #e8f7f1 0%, #ffffff 40%);
+            padding-bottom: 60px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 28px
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0
+        }
+
+        .brand {
+            display: flex;
+            gap: 12px;
+            align-items: center
+        }
+
+        .logo {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #2bb673, #176a4a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 6px 18px rgba(23, 106, 74, 0.18)
+        }
+
+        nav {
+            display: flex;
+            gap: 14px;
+            align-items: center
+        }
+
+        .btn {
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 0;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform .15s
+        }
+
+        .btn:hover {
+            transform: scale(1.04)
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #2bb673, #0b8b6d);
+            color: white;
+            box-shadow: 0 8px 20px rgba(11, 139, 109, 0.18)
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: 2px solid rgba(7, 59, 42, 0.08)
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr 420px;
+            gap: 28px;
+            align-items: center;
+            margin-top: 20px
+        }
+
+        .hero-card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 20px 40px rgba(10, 50, 40, 0.06)
+        }
+
+        .hero h2 {
+            font-size: 34px;
+            color: #064032;
+            margin-bottom: 10px
+        }
+
+        .lead {
+            color: #205e49;
+            margin-bottom: 18px;
+            line-height: 1.48
+        }
+
+        .features {
+            display: flex;
+            gap: 12px;
+            margin-top: 18px
+        }
+
+        .feature {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #f7fffb, #e7fff3);
+            border: 1px solid rgba(11, 139, 109, 0.06);
+            text-align: center
+        }
+
+        .side-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px
+        }
+
+        .card {
+            background: white;
+            padding: 14px;
+            border-radius: 12px;
+            box-shadow: 0 14px 28px rgba(11, 139, 109, 0.06);
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+
+        .icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #fffef0, #f6fff5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700
+        }
+
+        .waves {
+            position: relative;
+            height: 120px;
+            margin-top: 28px
+        }
+
+        .wave {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 120px;
+            background-repeat: no-repeat;
+            background-position: bottom;
+            background-size: cover;
+            opacity: 0.12
+        }
+
+        .wave.a {
+            background-image: radial-gradient(circle at 20% 10%, #2bb673 10%, transparent 11%), radial-gradient(circle at 80% 60%, #0b8b6d 10%, transparent 11%);
+            transform: translateY(8px);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-top: 26px
+        }
+
+        .card-hero {
+            padding: 18px;
+            border-radius: 14px;
+            background: linear-gradient(180deg, #ffffff, #f9fffb);
+            box-shadow: 0 12px 30px rgba(10, 50, 40, 0.04);
+            transition: transform .28s ease
+        }
+
+        .card-hero:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 30px 50px rgba(7, 59, 42, 0.12)
+        }
+
+        footer {
+            margin-top: 36px;
+            padding: 20px;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #f1faf4, #e6fff1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        @media (max-width:960px) {
+            .hero {
+                grid-template-columns: 1fr
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr 1fr
+            }
+        }
+
+        @media (max-width:600px) {
+            .cards-grid {
+                grid-template-columns: 1fr
+            }
+
+            nav {
+                display: none;
+            }
+        }
+
+        .badge {
+            background: #fff;
+            border-radius: 999px;
+            padding: 6px 10px;
+            box-shadow: 0 8px 18px rgba(11, 139, 109, 0.06);
+            font-weight: 700
+        }
+
+        .muted {
+            color: #496c5c;
+            font-size: 13px
+        }
+
+        /* --- Authentication Panel Styles --- */
+        .auth-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+            border-radius: 18px;
+            box-shadow: 0 20px 40px rgba(10, 50, 40, 0.06);
+            max-width: 420px; /* Keep max-width for responsiveness */
+            width: 90%; /* Use percentage for smaller screens */
+            position: fixed; /* Position relative to the viewport */
+            top: 50%; /* Move top edge to the middle */
+            left: 50%; /* Move left edge to the middle */
+            transform: translate(-50%, -50%); /* Center it perfectly */
+            z-index: 1000; /* Ensure it's on top of other content */
+        }   
+
+        .auth-close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: transparent;
+            border: none;
+            font-size: 24px;
+            font-weight: bold;
+            color: #496c5c;
+            cursor: pointer;
+            line-height: 1;
+            padding: 5px;
+            transition: color 0.2s;
+        }
+        .auth-close-btn:hover { color: #064032; }
+
+        .hero-hidden .auth-container {
+            display: flex !important;
+            /* Show auth container when hero is hidden */
+        }
+
+        .hero-hidden header,
+        .hero-hidden .main-content {
+            display: none;
+        }
+
+        .auth-tabs {
+            margin-bottom: 24px;
+            display: flex;
+            background: #e8f7f1;
+            border-radius: 999px;
+            padding: 4px;
+        }
+
+        .auth-tab {
+            padding: 8px 20px;
+            border: 0;
+            background: transparent;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #205e49;
+        }
+
+        .auth-tab.active {
+            background: #fff;
+            color: #064032;
+            box-shadow: 0 4px 12px rgba(10, 50, 40, 0.1);
+        }
+
+        .auth-form {
+            width: 100%;
+        }
+
+        .auth-form h3 {
+            text-align: center;
+            margin-bottom: 18px;
+            color: #064032;
+        }
+
+        .auth-form input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            border: 1px solid #d0e0d8;
+            background: #f7fffb;
+            font-size: 14px;
+        }
+
+        .auth-form button {
+            width: 100%;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="brand">
+                <div class="logo">Ag</div>
+                <div>
+                    <h1 data-i18n="brand.name">AgriCare</h1>
+                    <div data-i18n="brand.tagline" style="font-size:12px;color:#2a6d51">Sustainable farming • Smart
+                        insights</div>
+                </div>
+            </div>
+
+            <nav>
+                <select id="language-select" class="btn btn-ghost">
+                    <option value="en">English</option>
+                    <option value="mr">मराठी</option>
+                    <option value="hi">हिंदी</option>
+                </select>
+                {% if user %}
+                <!-- If user is logged in, show profile and name -->
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-weight: 600;">Welcome, {{ user.fullname }}</span>
+                    <img style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #10B981;" src="{{ url_for('uploaded_file', filename=user.profile_photo_path) }}" alt="Profile Photo">
+                    <a href="{{ url_for('logout') }}" style="font-size: 14px; text-decoration: underline;">Logout</a>
+                </div>
+                {% else %}
+                <!-- If user is not logged in, show Login button -->
+                <button class="btn btn-primary login-btn">Login</button>
+                {% endif %}
+            </nav>
+        </header>
+
+        <div class="main-content">
+            <section class="hero">
+                <div class="hero-card">
+                    <h2 id="dashboard-title" data-i18n="dashboardTitle">Agriculture Dashboard</h2>
+                    <p class="lead" data-i18n="lead">Smart tools and local knowledge to increase yield, reduce risk and
+                        make farming profitable. Forecast weather, pick ideal crops and estimate seed rates — all in one
+                        place.</p>
+                    <div class="features">
+                        <div class="feature">
+                            <h4 id="weather-card" data-i18n="weatherCard">Predict Weather</h4>
+                            <p class="muted" data-i18n="weatherDesc">Short-term forecasts tailored to your field
+                                coordinates.</p>
+                        </div>
+                        <div class="feature">
+                            <h4 id="crop-card" data-i18n="cropCard">Predict Crop</h4>
+                            <p class="muted" data-i18n="cropDesc">AI suggestions for best-fit crops based on soil and
+                                history.</p>
+                        </div>
+                        <div class="feature">
+                            <h4 id="seedrate-card" data-i18n="seedRateCard">Predict Seed Rate</h4>
+                            <p class="muted" data-i18n="seedRateDesc">Accurate seed-rate estimates to optimize input
+                                costs.</p>
+                        </div>
+                    </div>
+
+                    <div class="cta" style="margin-top:18px">
+                        <!-- primary CTA leads to login first -->
+                        {% if user %}
+                        <a href="{{ url_for('prediction') }}" class="btn btn-primary">Go to Dashboard →</a>
+                        {% else %}
+                        <button class="btn btn-primary login-btn">Get Started →</button>
+                        {% endif %}
+                        <a class="btn" id="explore-btn"
+                            style="background:#fff;border:2px solid rgba(11,139,109,0.08);padding:10px 14px;border-radius:12px"
+                            href="#cards">Explore</a>
+                    </div>
+                </div>
+
+                <aside class="side-cards">
+                    <div class="card">
+                        <div class="icon">☀️</div>
+                        <div>
+                            <h3 data-i18n="side.liveWeather">Live Weather</h3>
+                            <p class="muted" data-i18n="side.liveWeatherDesc">Temperature, rainfall & wind predictions</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="icon">🌱</div>
+                        <div>
+                            <h3 data-i18n="side.cropAdvisor">Crop Advisor</h3>
+                            <p class="muted" data-i18n="side.cropAdvisorDesc">Crop rotations and fertilization plans</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="icon">💡</div>
+                        <div>
+                            <h3 data-i18n="side.tipsAlerts">Tips & Alerts</h3>
+                            <p class="muted" data-i18n="side.tipsAlertsDesc">Pest warnings and harvest reminders</p>
+                        </div>
+                    </div>
+                </aside>
+            </section>
+            <div class="waves">
+                <div class="wave a"></div>
+            </div>
+            <section id="cards" class="cards-grid">
+                <div class="card-hero">
+                    <h4 data-i18n="cards.weatherIntelligence">Weather Intelligence</h4>
+                    <p data-i18n="cards.weatherIntelligenceDesc">Receive hyperlocal forecasts and irrigation
+                        recommendations to save water and improve crop quality.</p>
+                </div>
+                <div class="card-hero">
+                    <h4 data-i18n="cards.cropSuitability">Crop Suitability</h4>
+                    <p data-i18n="cards.cropSuitabilityDesc">Enter soil and historical yields to get ranked crop
+                        suggestions that maximize return.</p>
+                </div>
+                <div class="card-hero">
+                    <h4 data-i18n="cards.seedCalculator">Seed Rate Calculator</h4>
+                    <p data-i18n="cards.seedCalculatorDesc">Dynamic seed-rate calculator that adapts to row-spacing and
+                        germination rates.</p>
+                </div>
+            </section>
+            <footer>
+                <div>
+                    <div class="badge" data-i18n="footer.badge">Free for small farms</div>
+                </div>
+                <div style="text-align:right">
+                    <div style="font-weight:700" data-i18n="footer.brand">AgriCare</div>
+                    <div style="font-size:13px;color:#215b45">© <span id="year"></span> <span
+                            data-i18n="footer.copy">Built for farmers</span></div>
+                </div>
+            </footer>
+        </div>
+
+        <!-- Authentication Panel -->
+        <div class="auth-container">
+            <button class="auth-close-btn" title="Close">&times;</button>
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="register">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form" class="auth-form">
+                <form id="loginForm">
+                    <h3>Welcome Back!</h3>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <input type="password" name="password" placeholder="Password" required>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form" class="auth-form" style="display: none;">
+                <form id="registerForm">
+                    <h3>Create an Account</h3>
+                    <input type="text" name="fullname" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <input type="password" name="password" placeholder="Create Password" required>
+                    <label for="profile_photo" class="muted" style="display: block; text-align: left; margin-bottom: 4px; margin-top: 4px;">Profile Photo</label>
+                    <input type="file" name="profile_photo" id="profile_photo" accept="image/*" required>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        // --- LANGUAGE SELECTION LOGIC ---
+        document.getElementById('language-select').addEventListener('change', function() {
+            const selectedLang = this.value;
+
+            switch (selectedLang) {
+                case 'en':
+                    applyTranslationsMap(ORIGINAL_TEXTS);
+                    break;
+                case 'mr':
+                    applyTranslationsMap(FALLBACK_MR);
+                    break;
+                case 'hi':
+                    applyTranslationsMap(FALLBACK_HI);
+                    break;
+            }
+        });
+
+        // small niceties
+        document.getElementById('year').innerText = new Date().getFullYear();
+
+        // --- AUTHENTICATION LOGIC ---
+        function showAuthPanel(tabToShow = 'login') {
+            const container = document.querySelector('.container');
+            container.classList.add('hero-hidden');
+
+            // Logic to switch tabs (Login/Register)
+            const tabs = document.querySelectorAll('.auth-tab');
+            const forms = document.querySelectorAll('.auth-form');
+
+            tabs.forEach(tab => {
+                if (tab.dataset.tab === tabToShow) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+
+            forms.forEach(form => {
+                if (form.id === `${tabToShow}-form`) {
+                    form.style.display = 'block';
+                } else {
+                    form.style.display = 'none';
+                }
+            });
+        }
+
+        function hideAuthPanel() {
+            const container = document.querySelector('.container');
+            container.classList.remove('hero-hidden');
+        }
+
+        // Attach event listeners to all login buttons
+        document.querySelectorAll('.login-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault(); // Prevent navigation
+                showAuthPanel('login');
+            });
+        });
+
+        // Attach event listeners to auth tabs
+        document.querySelectorAll('.auth-tab').forEach(tab => {
+            tab.addEventListener('click', () => showAuthPanel(tab.dataset.tab));
+        });
+
+        // Attach event listener to the close button
+        document.querySelector('.auth-close-btn').addEventListener('click', hideAuthPanel);
+
+        // --- FORM SUBMISSION LOGIC ---
+        const API_BASE_URL = 'http://127.0.0.1:5000'; // Your Flask backend URL
+
+        // Handle Registration
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form); // Use FormData to handle file uploads
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/register`, {
+                    method: 'POST',
+                    // Do not set Content-Type header; the browser will set it to multipart/form-data
+                    body: formData,
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.message || `HTTP error! status: ${response.status}`);
+                }
+
+                // alert('Registration successful! Redirecting to the dashboard.'); // Removed alert
+                window.location.href = '/prediction'; // Redirect to prediction page
+
+            } catch (error) {
+                console.error('Registration failed:', error);
+                alert(`Registration failed: ${error.message}`);
+            }
+        });
+
+        // Handle Login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.message || `HTTP error! status: ${response.status}`);
+                }
+
+                // alert('Login successful! Redirecting to the dashboard.'); // Removed alert
+                // Redirect to the prediction page served by Flask
+                window.location.href = '/prediction';
+
+            } catch (error) {
+                console.error('Login failed:', error);
+                alert(`Login failed: ${error.message}`);
+            }
+        });
+    </script>
+</body>
+</html>
+</html>
