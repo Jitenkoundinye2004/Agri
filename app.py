@@ -107,7 +107,7 @@ def login():
     else:
         return jsonify({"message": "Invalid email or password"}), 401
 
-@app.route('/prediction')
+@app.route('/prediction', methods=['GET', 'POST'])
 def prediction():
     # Check if user is logged in
     if 'user_email' not in session:
@@ -121,7 +121,32 @@ def prediction():
         session.pop('user_email', None)
         return redirect(url_for('index'))
 
-    return render_template('prediction.html', user=user)
+    if request.method == 'POST':
+        # --- Handle form submission for crop prediction ---
+        season = request.form.get('season')
+        crop_variety = request.form.get('crop_variety')
+        soil_type = request.form.get('soil_type')
+        state = request.form.get('state')
+        district = request.form.get('district')
+        taluka = request.form.get('taluka')
+        village = request.form.get('village')  # Optional
+        farm_area = request.form.get('farm_area')
+
+        # Basic validation
+        required_fields = [season, crop_variety, soil_type, state, district, taluka, farm_area]
+        if not all(required_fields):
+            # In a real app, you'd likely flash a message and re-render the form
+            return jsonify({"message": "Missing required prediction fields"}), 400
+
+        # --- Placeholder for your prediction model logic ---
+        # You would typically pass these variables to your machine learning model
+        # and get a prediction result.
+        # For now, we'll just return a success message with the data.
+        prediction_result = "Placeholder: High-Yield Wheat" # Example result
+
+        return render_template('prediction.html', user=user, prediction_made=True, prediction_result=prediction_result)
+
+    return render_template('prediction.html', user=user, prediction_made=False)
 
 @app.route('/weather-forecast')
 def weather_forecast():

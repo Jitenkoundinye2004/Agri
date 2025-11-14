@@ -181,28 +181,65 @@
                 <div id="crop-content" class="content-card bg-agri-card p-6 rounded-xl shadow-lg border border-gray-100 hidden">
                     <h1 class="text-3xl font-bold text-yellow-700 mb-4" data-i18n="crop.title">Optimal Crop Recommendation</h1>
                     <p class="text-gray-600 mb-6" data-i18n="crop.desc">Enter your soil data and historical parameters to get a personalized crop suggestion that maximizes yield.</p>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div>
-                            <label for="nitrogen" class="block text-sm font-medium text-gray-700" data-i18n="crop.nLabel">Nitrogen (N) level (ppm)</label>
-                            <input type="number" id="nitrogen" placeholder="e.g., 90" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
+                    
+                    <!-- Prediction Form -->
+                    <form action="{{ url_for('prediction') }}" method="POST">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label for="season" class="block text-sm font-medium text-gray-700">Season</label>
+                                <select id="season" name="season" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
+                                    <option value="" selected disabled>Select a Season</option>
+                                    <option value="Kharif">Kharif</option>
+                                    <option value="Rabi">Rabi</option>
+                                    <option value="Zaid">Zaid</option>
+                                    <option value="Whole Year">Whole Year</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="crop_variety" class="block text-sm font-medium text-gray-700">Crop Variety</label>
+                                <input type="text" id="crop_variety" name="crop_variety" placeholder="e.g., Hybrid, Traditional" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
+                            </div>
+                            <div>
+                                <label for="soil_type" class="block text-sm font-medium text-gray-700">Soil Type</label>
+                                <select id="soil_type" name="soil_type" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
+                                    <option value="" selected disabled>Select Soil Type</option>
+                                    <option value="Alluvial">Alluvial Soil</option>
+                                    <option value="Black">Black Soil</option>
+                                    <option value="Red">Red Soil</option>
+                                    <option value="Laterite">Laterite Soil</option>
+                                    <option value="Sandy">Sandy Soil</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="farm_area" class="block text-sm font-medium text-gray-700">Farm Area (in acres)</label>
+                                <input type="number" step="0.1" id="farm_area" name="farm_area" placeholder="e.g., 2.5" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
+                            </div>
+                            <div>
+                                <label for="state" class="block text-sm font-medium text-gray-700">State</label>
+                                <input type="text" id="state" name="state" placeholder="e.g., Maharashtra" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
+                            </div>
+                            <div>
+                                <label for="district" class="block text-sm font-medium text-gray-700">District</label>
+                                <input type="text" id="district" name="district" placeholder="e.g., Pune" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
+                            </div>
+                            <div>
+                                <label for="taluka" class="block text-sm font-medium text-gray-700">Taluka</label>
+                                <input type="text" id="taluka" name="taluka" placeholder="e.g., Haveli" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
+                            </div>
+                            <div>
+                                <label for="village" class="block text-sm font-medium text-gray-700">Village <span class="text-gray-500">(Optional)</span></label>
+                                <input type="text" id="village" name="village" placeholder="e.g., Manjri" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
+                            </div>
                         </div>
-                        <div>
-                            <label for="phos" class="block text-sm font-medium text-gray-700" data-i18n="crop.pLabel">Phosphorus (P) level (ppm)</label>
-                            <input type="number" id="phos" placeholder="e.g., 42" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
-                        </div>
-                        <div>
-                            <label for="soil_ph" class="block text-sm font-medium text-gray-700" data-i18n="crop.phLabel">Soil pH</label>
-                            <input type="number" id="soil_ph" placeholder="e.g., 6.5" step="0.1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-agri-green focus:ring focus:ring-agri-green focus:ring-opacity-50">
-                        </div>
-                    </div>
+                        <button type="submit" class="bg-yellow-600 text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:bg-yellow-700 transition w-full" data-i18n="crop.button">Analyze & Recommend</button>
+                    </form>
 
-                    <button class="bg-yellow-600 text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:bg-yellow-700 transition" data-i18n="crop.button">Analyze & Recommend</button>
-
+                    {% if prediction_made %}
                     <div class="mt-8 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-md">
                         <p class="font-semibold text-yellow-800" data-i18n="crop.resultTitle">Recommendation:</p>
-                        <p class="text-yellow-700 text-sm">Based on the high NPK ratio and slightly acidic pH, the AI strongly recommends growing **Cotton** or **Maize** this season.</p>
+                        <p class="text-yellow-700 text-lg">Based on your inputs, the AI recommends growing: <strong>{{ prediction_result }}</strong></p>
                     </div>
+                    {% endif %}
                 </div>
 
                 <!-- 3. Predict Seed Rate Content (Initially Hidden) -->
