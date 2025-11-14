@@ -485,30 +485,30 @@
         <div class="auth-container">
             <button class="auth-close-btn" title="Close">&times;</button>
             <div class="auth-tabs">
-                <button class="auth-tab active" data-tab="login">Login</button>
-                <button class="auth-tab" data-tab="register">Register</button>
+                <button class="auth-tab active" data-tab="login" data-i18n="auth.loginTab">Login</button>
+                <button class="auth-tab" data-tab="register" data-i18n="auth.registerTab">Register</button>
             </div>
 
             <!-- Login Form -->
             <div id="login-form" class="auth-form">
                 <form id="loginForm">
-                    <h3>Welcome Back!</h3>
-                    <input type="email" name="email" placeholder="Email Address" required>
-                    <input type="password" name="password" placeholder="Password" required>
-                    <button type="submit" class="btn btn-primary">Login</button>
+                    <h3 data-i18n="auth.loginTitle">Welcome Back!</h3>
+                    <input type="email" name="email" placeholder="Email Address" required data-i18n-placeholder="auth.emailPlaceholder">
+                    <input type="password" name="password" placeholder="Password" required data-i18n-placeholder="auth.passwordPlaceholder">
+                    <button type="submit" class="btn btn-primary" data-i18n="auth.loginButton">Login</button>
                 </form>
             </div>
 
             <!-- Register Form -->
             <div id="register-form" class="auth-form" style="display: none;">
                 <form id="registerForm">
-                    <h3>Create an Account</h3>
-                    <input type="text" name="fullname" placeholder="Full Name" required>
-                    <input type="email" name="email" placeholder="Email Address" required>
-                    <input type="password" name="password" placeholder="Create Password" required>
-                    <label for="profile_photo" class="muted" style="display: block; text-align: left; margin-bottom: 4px; margin-top: 4px;">Profile Photo</label>
+                    <h3 data-i18n="auth.registerTitle">Create an Account</h3>
+                    <input type="text" name="fullname" placeholder="Full Name" required data-i18n-placeholder="auth.fullnamePlaceholder">
+                    <input type="email" name="email" placeholder="Email Address" required data-i18n-placeholder="auth.emailPlaceholder">
+                    <input type="password" name="password" placeholder="Create Password" required data-i18n-placeholder="auth.createPasswordPlaceholder">
+                    <label for="profile_photo" class="muted" style="display: block; text-align: left; margin-bottom: 4px; margin-top: 4px;" data-i18n="auth.photoLabel">Profile Photo</label>
                     <input type="file" name="profile_photo" id="profile_photo" accept="image/*" required>
-                    <button type="submit" class="btn btn-primary">Register</button>
+                    <button type="submit" class="btn btn-primary" data-i18n="auth.registerButton">Register</button>
                 </form>
             </div>
         </div>
@@ -537,7 +537,7 @@
 
         // fallback Marathi translations (for instant offline fallback)
         const FALLBACK_MR = {
-            "brand.name": "AgriCare",
+            "brand.name": "एग्रीकेअर",
             "brand.tagline": "सतत शेती • स्मार्ट अंतर्दृष्टी",
             "dashboardTitle": "कृषी डॅशबोर्ड",
             "lead": "उत्पन्न वाढवण्यासाठी, जोखीमे कमी करण्यासाठी आणि शेती नफा देण्यासाठी स्मार्ट साधने व स्थानिक माहिती.",
@@ -562,7 +562,14 @@
             "cards.seedCalculatorDesc": "राई-स्पेसिंग व अंकुर दरानुसार गणना",
             "footer.badge": "लहान शेतांसाठी विनामूल्य",
             "footer.brand": "AgriCare",
-            "footer.copy": "शेतकऱ्यांसाठी बनविलेले"
+            "footer.copy": "शेतकऱ्यांसाठी बनविलेले",
+            "auth.loginTab": "लॉगिन",
+            "auth.registerTab": "नोंदणी करा",
+            "auth.loginTitle": "पुन्हा स्वागत आहे!",
+            "auth.registerTitle": "खाते तयार करा",
+            "auth.photoLabel": "प्रोफाइल फोटो",
+            "auth.loginButton": "लॉगिन",
+            "auth.registerButton": "नोंदणी करा"
         };
 
         // fallback Hindi translations
@@ -591,14 +598,27 @@
             "cards.seedCalculatorDesc": "पंक्ति-रिक्ति और अंकुरण दरों के अनुकूल गतिशील कैलकुलेटर।",
             "footer.badge": "छोटे खेतों के लिए नि:शुल्क",
             "footer.brand": "एग्रीकेयर",
-            "footer.copy": "किसानों के लिए बनाया गया"
+            "footer.copy": "किसानों के लिए बनाया गया",
+            "auth.loginTab": "लॉग इन करें",
+            "auth.registerTab": "पंजीकरण करें",
+            "auth.loginTitle": "वापसी पर स्वागत है!",
+            "auth.registerTitle": "खाता बनाएं",
+            "auth.photoLabel": "प्रोफ़ाइल फ़ोटो",
+            "auth.loginButton": "लॉग इन करें",
+            "auth.registerButton": "पंजीकरण करें"
         };
 
         // helper: update DOM with translations map {key: translatedText}
         function applyTranslationsMap(map) {
             nodes.forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (map && map[key]) el.innerText = map[key];
+                const placeholderKey = el.getAttribute('data-i18n-placeholder');
+                if (key && map && map[key]) {
+                    el.innerText = map[key];
+                }
+                if (placeholderKey && map && map[placeholderKey]) {
+                    el.placeholder = map[placeholderKey];
+                }
             });
         }
 
@@ -692,9 +712,17 @@
                     applyTranslationsMap(ORIGINAL_TEXTS);
                     break;
                 case 'mr':
+                    FALLBACK_MR['auth.emailPlaceholder'] = "ईमेल पत्ता";
+                    FALLBACK_MR['auth.passwordPlaceholder'] = "पासवर्ड";
+                    FALLBACK_MR['auth.fullnamePlaceholder'] = "पूर्ण नाव";
+                    FALLBACK_MR['auth.createPasswordPlaceholder'] = "पासवर्ड तयार करा";
                     applyTranslationsMap(FALLBACK_MR);
                     break;
                 case 'hi':
+                    FALLBACK_HI['auth.emailPlaceholder'] = "ईमेल पता";
+                    FALLBACK_HI['auth.passwordPlaceholder'] = "पासवर्ड";
+                    FALLBACK_HI['auth.fullnamePlaceholder'] = "पूरा नाम";
+                    FALLBACK_HI['auth.createPasswordPlaceholder'] = "पासवर्ड बनाएं";
                     applyTranslationsMap(FALLBACK_HI);
                     break;
                 default:
